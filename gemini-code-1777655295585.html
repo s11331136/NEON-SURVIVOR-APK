@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Neon Survivor - Mobile</title>
+    <style>
+        /* [核心樣式 - 保留並優化] */
+        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        canvas { display: block; }
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; z-index: 100; pointer-events: auto; }
+        
+        #main-menu { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
+        #main-menu h1 { font-size: 50px; color: #00ffcc; text-shadow: 0 0 20px #00ffcc; margin-bottom: 10px; }
+        .controls-hint { color: #888888; font-size: 14px; margin-bottom: 30px; padding: 0 20px; }
+        
+        .btn-start { padding: 12px 40px; font-size: 20px; background: transparent; border: 3px solid #00ffcc; color: #00ffcc; cursor: pointer; border-radius: 50px; font-weight: bold; transition: 0.3s; }
+
+        #char-select { background: #000; display: none; }
+        .char-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
+        .char-card { border: 2px solid #333; padding: 15px; width: 100px; cursor: pointer; border-radius: 15px; background: rgba(255,255,255,0.05); font-size: 12px; }
+        .char-card.active { border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
+        
+        #upgrade-screen, #pause-menu { background: rgba(0, 0, 0, 0.95); display: none; }
+        .card-container { display: flex; flex-direction: column; gap: 10px; width: 80%; }
+        .upgrade-card { background: #1a1a1a; border: 2px solid #ffcc00; padding: 15px; border-radius: 15px; }
+
+        #game-over-screen { background: #000; display: none; }
+        #game-over-screen h2 { font-size: 40px; color: #ff4444; }
+        
+        #game-ui { position: absolute; top: 10px; left: 10px; color: white; font-size: 16px; pointer-events: none; display: none; }
+        .bar-container { width: 150px; height: 12px; background: #222; border: 1px solid #444; margin: 3px 0 10px 0; position: relative; overflow: hidden; }
+        #hp-ghost { position: absolute; top: 0; left: 0; height: 100%; background: #fff; width: 100%; transition: width 0.6s ease-out; z-index: 1; }
+        #hp-bar { position: absolute; top: 0; left: 0; height: 100%; background: #ff4444; width: 100%; z-index: 2; }
+        #overload-bar { width: 0%; height: 100%; background: #00ffcc; }
+
+        /* [新增加：手機搖桿樣式] */
+        #joystick-wrapper {
+            position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px;
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(0,255,204,0.2);
+            border-radius: 50%; display: none; touch-action: none; z-index: 200;
+        }
+        #joystick-knob {
+            position: absolute; top: 35px; left: 35px; width: 50px; height: 50px;
+            background: #00ffcc; border-radius: 50%; opacity: 0.8;
+        }
+
+        #boss-ui { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: none; width: 60%; }
+        #boss-bar-box { width: 100%; height: 10px; background: rgba(0,0,0,0.5); border: 1px solid #ff0055; }
+        #boss-bar { width: 100%; height: 100%; background: #ff0055; }
+
+        .shaking { animation: shake 0.15s infinite; }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-2px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-menu" class="overlay">
+        <h1>NEON SURVIVOR</h1>
+        <p class="controls-hint">Joystick to Move | Tap Right to Shoot | Long Press Right for Ring</p>
+        <button class="btn-start" onclick="toCharSelect()">ENTER SYSTEM</button>
+    </div>
+
+    <div id="char-select" class="overlay">
+        <h2>SELECT HERO</h2>
+        <div class="char-container">
+            <div class="char-card" id="card-knight" onclick="selectChar('knight')"><h3>⚔️ Knight</h3><p>Balanced</p></div>
+            <div class="char-card" id="card-scout" onclick="selectChar('scout')"><h3>⚡ Scout</h3><p>Fast/Fragile</p></div>
+            <div class="char-card" id="card-fortress" onclick="selectChar('fortress')"><h3>🛡️ Fortress</h3><p>Tank/Dmg x2</p></div>
+        </div>
+        <button class="btn-start" id="confirm-btn" disabled onclick="startGame()">CONFIRM</button>
+    </div>
+
+    <div id="pause-menu" class="overlay">
+        <h2 style="color: #00ffcc;">PAUSED</h2>
+        <button class="btn-start" onclick="togglePause()">RESUME</button>
+        <button class="btn-start" onclick="location.reload()" style="border-color:#ff4444; color:#ff4444; margin-top:10px;">EXIT</button>
+    </div>
+
+    <div id="upgrade-screen" class="overlay">
+        <h2 style="color: #ffcc00;">LEVEL UP!</h2>
+        <div class="card-container" id="card-options"></div>
+    </div>
+
+    <div id="game-over-screen" class="overlay">
+        <h2>MISSION FAILED</h2>
+        <p>Score: <span id="final-score-val">0</span></p>
+        <button class="btn-start" onclick="location.reload()">TRY AGAIN</button>
+    </div>
+
+    <div id="game-ui">
+        Score: <span id="score">0</span><br>
+        HP <div class="bar-container" id="hp-container"><div id="hp-ghost"></div><div id="hp-bar"></div></div>
+        OVERLOAD <div class="bar-container"><div id="overload-bar"></div></div>
+    </div>
+
+    <div id="boss-ui">
+        <div id="boss-bar-box"><div id="boss-bar"></div></div>
+    </div>
+
+    <div id="joystick-wrapper"><div id="joystick-knob"></div></div>
+
+    <canvas id="gameCanvas"></canvas>
+
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let score=0, isGameOver=false, isPaused=false, gameStarted=false, energy=0, isOverloaded=false, overloadTimer=0, chargeTime=0, isCharging=false, boss=null, lastBossThresh=0, lastUpgradeThresh=0;
+let bullets=[], enemies=[], collectibles=[]; 
+const keys={};
+let damageFlash = 0;
+
+// [角色數值 - 包含你的坦克與Scout需求]
+const heroes = {
+    knight: { speed: 5, maxHp: 100, chargeSpeed: 1.0, color: '#00ffcc', defense: 1, damageMult: 1 },
+    scout: { speed: 7.5, maxHp: 50, chargeSpeed: 1.8, color: '#ffff00', defense: 1.2, damageMult: 1 },
+    fortress: { speed: 3.5, maxHp: 200, chargeSpeed: 0.6, color: '#0088ff', defense: 0.6, damageMult: 2 }
+};
+let player = { x:0, y:0, size:20, angle:0, hp: 100, maxHp: 100, type: 'knight', multiShot: 1 };
+
+const upgradePool = [
+    { title: "Multi-Shot", desc: "+1 Bullet", effect: () => player.multiShot++ },
+    { title: "Speed+", desc: "15% Speed", effect: () => heroes[player.type].speed *= 1.15 },
+    { title: "Charge+", desc: "25% Charge", effect: () => heroes[player.type].chargeSpeed *= 1.25 },
+    { title: "Repair", desc: "Heal 50% HP", effect: () => player.hp = Math.min(player.hp + player.maxHp*0.5, player.maxHp) }
+];
+
+// --- [手機控制模組] ---
+const joystick = document.getElementById('joystick-wrapper');
+const knob = document.getElementById('joystick-knob');
+let isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+function toCharSelect() { document.getElementById('main-menu').style.display = 'none'; document.getElementById('char-select').style.display = 'flex'; }
+function selectChar(type) { player.type = type; document.querySelectorAll('.char-card').forEach(c => c.classList.remove('active')); document.getElementById('card-' + type).classList.add('active'); document.getElementById('confirm-btn').disabled = false; }
+function startGame() { 
+    document.getElementById('char-select').style.display = 'none'; 
+    document.getElementById('game-ui').style.display = 'block'; 
+    if(isMobile) joystick.style.display = 'block';
+    gameStarted = true; resize(); resetGame(); 
+}
+
+function resetGame() { 
+    const d = heroes[player.type]; 
+    player.x = canvas.width / 2; player.y = canvas.height / 2; 
+    player.hp = d.maxHp; player.maxHp = d.maxHp; player.multiShot = 1; 
+    score=0; energy=0; lastUpgradeThresh=0; lastBossThresh=0; 
+    bullets=[]; enemies=[]; collectibles=[]; boss=null; 
+    isPaused = false; isGameOver = false; updateUI(); 
+}
+
+function updateUI() { 
+    document.getElementById('score').innerText = score; 
+    const hpPercent = Math.max(0, (player.hp / player.maxHp * 100)) + "%";
+    document.getElementById('hp-bar').style.width = hpPercent;
+    setTimeout(() => { if(document.getElementById('hp-ghost')) document.getElementById('hp-ghost').style.width = hpPercent; }, 250);
+    document.getElementById('overload-bar').style.width = energy + "%"; 
+}
+
+function triggerDamageFeedback(amt) {
+    player.hp -= amt;
+    damageFlash = 10;
+    if(isMobile && window.navigator.vibrate) window.navigator.vibrate(50); // 手機震動
+    const hpContainer = document.getElementById('hp-container');
+    hpContainer.classList.add('shaking');
+    setTimeout(() => hpContainer.classList.remove('shaking'), 200);
+    updateUI();
+}
+
+function togglePause() {
+    if (!gameStarted || isGameOver || document.getElementById('upgrade-screen').style.display === 'flex') return;
+    isPaused = !isPaused;
+    document.getElementById('pause-menu').style.display = isPaused ? 'flex' : 'none';
+}
+
+function showUpgradeScreen() {
+    isPaused = true;
+    const screen = document.getElementById('upgrade-screen');
+    const container = document.getElementById('card-options');
+    container.innerHTML = ""; screen.style.display = "flex";
+    const shuffled = [...upgradePool].sort(() => 0.5 - Math.random());
+    shuffled.slice(0, 3).forEach(option => {
+        const div = document.createElement('div'); div.className = 'upgrade-card';
+        div.innerHTML = `<h3>${option.title}</h3><p>${option.desc}</p>`;
+        div.onclick = () => { option.effect(); screen.style.display = "none"; isPaused = false; updateUI(); };
+        container.appendChild(div);
+    });
+}
+
+function fireBullet() { 
+    const dmg = heroes[player.type].damageMult || 1;
+    for(let i=0; i<player.multiShot; i++) { 
+        let offset = (i - (player.multiShot-1)/2) * 0.1; 
+        bullets.push({ x: player.x, y: player.y, vx: Math.cos(player.angle + offset)*14, vy: Math.sin(player.angle + offset)*14, damage: dmg }); 
+    } 
+}
+
+function releaseNeonRing() { 
+    const dmg = heroes[player.type].damageMult || 1;
+    for(let a=0; a<Math.PI*2; a+=0.4) bullets.push({x:player.x, y:player.y, vx:Math.cos(a)*8, vy:Math.sin(a)*8, type:'ring', damage: dmg}); 
+}
+
+// [手機觸控與搖桿事件]
+if(isMobile) {
+    window.addEventListener('touchstart', e => {
+        if(!gameStarted || isPaused) return;
+        const touch = e.touches[0];
+        if(touch.clientX > canvas.width / 2) { // 畫面右側射擊
+            fireBullet();
+            isCharging = true;
+        }
+    });
+    window.addEventListener('touchend', e => { isCharging = false; if(chargeTime > 30/heroes[player.type].chargeSpeed) releaseNeonRing(); chargeTime=0; });
+
+    joystick.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = joystick.getBoundingClientRect();
+        const cx = rect.left + 60, cy = rect.top + 60;
+        const dx = touch.clientX - cx, dy = touch.clientY - cy;
+        const dist = Math.min(Math.hypot(dx, dy), 50);
+        const angle = Math.atan2(dy, dx);
+        knob.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+        
+        keys['w'] = dy < -20; keys['s'] = dy > 20; keys['a'] = dx < -20; keys['d'] = dx > 20;
+        player.angle = angle;
+    });
+    joystick.addEventListener('touchend', () => {
+        knob.style.transform = `translate(0,0)`;
+        keys['w'] = keys['s'] = keys['a'] = keys['d'] = false;
+    });
+}
+
+// [電腦鍵盤支援]
+window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if(e.key === 'Escape' || e.key.toLowerCase() === 'p') togglePause(); });
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+window.addEventListener('mousemove', e => { if(!isMobile) player.angle = Math.atan2(e.clientY - player.y, e.clientX - player.x); });
+window.addEventListener('mousedown', e => { if(!gameStarted || isPaused || isMobile) return; if(e.button===0) fireBullet(); if(e.button===2) isCharging=true; });
+window.addEventListener('mouseup', e => { if(e.button===2 && isCharging) { if(chargeTime > 30/heroes[player.type].chargeSpeed) releaseNeonRing(); isCharging=false; chargeTime=0; } });
+window.addEventListener('contextmenu', e => e.preventDefault());
+
+function spawnEnemy() { 
+    if(!gameStarted || isPaused || isGameOver || enemies.length > 60) return; 
+    const side = Math.floor(Math.random()*4); 
+    let x = (side%2===0)? Math.random()*canvas.width : (side===1?-30:canvas.width+30), y = (side%2!==0)? Math.random()*canvas.height : (side===0?-30:canvas.height+30); 
+    enemies.push({x, y, speed: 1.5 + Math.random()}); 
+}
+setInterval(spawnEnemy, 1000);
+
+function update() {
+    if(!gameStarted || isPaused || isGameOver) return; 
+    const hero = heroes[player.type];
+    if(damageFlash > 0) damageFlash--; 
+
+    if(keys['w']) player.y -= hero.speed; if(keys['s']) player.y += hero.speed; if(keys['a']) player.x -= hero.speed; if(keys['d']) player.x += hero.speed;
+    player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+    player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
+
+    if(isCharging) chargeTime += hero.chargeSpeed;
+    if(isOverloaded) { if(Date.now() % 5 === 0) fireBullet(); overloadTimer--; if(overloadTimer <= 0) isOverloaded = false; updateUI(); }
+    
+    if(boss) {
+        let d = Math.hypot(player.x - boss.x, player.y - boss.y);
+        if(d > 5) { boss.x += (player.x - boss.x)/d * boss.speed; boss.y += (player.y - boss.y)/d * boss.speed; }
+        document.getElementById('boss-bar').style.width = (boss.hp / boss.maxHp * 100) + "%";
+        if(d < boss.size/2 + 15) triggerDamageFeedback(1.0 * hero.defense);
+        for(let j=bullets.length-1; j>=0; j--) {
+            if(Math.hypot(bullets[j].x - boss.x, bullets[j].y - boss.y) < boss.size/2) {
+                boss.hp -= (bullets[j].damage || 1); if(bullets[j].type!=='ring') bullets.splice(j, 1);
+                if(boss.hp <= 0) { 
+                    score += 5000; boss = null; document.getElementById('boss-ui').style.display = 'none'; 
+                    for(let k=0; k<10; k++) collectibles.push({x: player.x+Math.random()*100-50, y: player.y+Math.random()*100-50});
+                    updateUI(); break;
+                }
+            }
+        }
+    }
+
+    for(let i=enemies.length-1; i>=0; i--) {
+        let e = enemies[i], d = Math.hypot(player.x-e.x, player.y-e.y); 
+        if(d > 1) { e.x += (player.x-e.x)/d * e.speed; e.y += (player.y-e.y)/d * e.speed; }
+        if(d < 25) triggerDamageFeedback(0.8 * hero.defense);
+        for(let j=bullets.length-1; j>=0; j--) {
+            if(Math.hypot(bullets[j].x-e.x, bullets[j].y-e.y) < 25) {
+                if(Math.random() > 0.7) collectibles.push({x: e.x, y: e.y});
+                enemies.splice(i, 1); if(bullets[j].type !== 'ring') bullets.splice(j, 1);
+                score += 100; updateUI();
+                if(score >= lastUpgradeThresh+2000){ lastUpgradeThresh+=2000; showUpgradeScreen(); }
+                if(score > 0 && score % 5000 === 0 && !boss && score > lastBossThresh) { lastBossThresh = score; spawnBoss(); } break;
+            }
+        }
+    }
+
+    for(let i=collectibles.length-1; i>=0; i--) { 
+        if(Math.hypot(player.x - collectibles[i].x, player.y - collectibles[i].y) < 30) { 
+            energy = Math.min(energy + 8, 100); if(energy >= 100 && !isOverloaded){ isOverloaded=true; energy=0; overloadTimer=300; } 
+            collectibles.splice(i, 1); updateUI(); 
+        } 
+    }
+    for(let i=bullets.length-1; i>=0; i--) { bullets[i].x += bullets[i].vx; bullets[i].y += bullets[i].vy; if(bullets[i].x<0||bullets[i].x>canvas.width||bullets[i].y<0||bullets[i].y>canvas.height) bullets.splice(i, 1); }
+    if(player.hp <= 0) { isGameOver = true; document.getElementById('final-score-val').innerText = score; document.getElementById('game-over-screen').style.display = 'flex'; }
+}
+
+function draw() {
+    ctx.fillStyle = '#050505'; ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(gameStarted) {
+        // 網格背景
+        ctx.strokeStyle = "rgba(0, 255, 204, 0.1)"; ctx.lineWidth = 1;
+        for(let x=0; x<canvas.width; x+=60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+        for(let y=0; y<canvas.height; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+
+        const hero = heroes[player.type];
+        ctx.fillStyle = '#00ffcc'; collectibles.forEach(c => ctx.fillRect(c.x-4, c.y-4, 8, 8));
+        bullets.forEach(b => { 
+            ctx.fillStyle = b.type==='ring'?'#00ffcc':'#ffff00'; 
+            ctx.beginPath(); ctx.arc(b.x, b.y, (b.type==='ring'?6:4) * (b.damage > 1 ? 1.5 : 1), 0, Math.PI*2); ctx.fill(); 
+        });
+        ctx.fillStyle = '#ff4444'; enemies.forEach(e => ctx.fillRect(e.x-10, e.y-10, 20, 20));
+        if(boss) { ctx.fillStyle = "#ff0055"; ctx.shadowBlur = 20; ctx.shadowColor = "#ff0055"; ctx.fillRect(boss.x-boss.size/2, boss.y-boss.size/2, boss.size, boss.size); ctx.shadowBlur = 0; }
+        
+        ctx.save(); ctx.translate(player.x, player.y); ctx.rotate(player.angle);
+        ctx.fillStyle = (damageFlash > 0 && damageFlash % 2 === 0) ? '#ff0000' : (isOverloaded ? '#fff' : hero.color);
+        ctx.beginPath(); ctx.moveTo(22,0); ctx.lineTo(-15,-15); ctx.lineTo(-10,0); ctx.lineTo(-15,15); ctx.fill(); ctx.restore();
+        
+        if(isCharging) {
+            ctx.beginPath(); let radius = Math.min(chargeTime * 2.5, 60);
+            ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
+            ctx.lineWidth = 3; ctx.strokeStyle = chargeTime > 30 / hero.chargeSpeed ? '#fff' : hero.color;
+            ctx.stroke();
+        }
+    }
+    requestAnimationFrame(draw);
+}
+
+setInterval(update, 1000/60); 
+function resize() { canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+window.addEventListener('resize', resize); resize(); draw();
+</script>
+</body>
+</html>
