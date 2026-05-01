@@ -5,63 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Neon Survivor - Mobile</title>
     <style>
-        /* [核心樣式 - 保留並優化] */
-        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        /* [核心樣式 - 保留] */
+        body { margin: 0; overflow: hidden; background: #050505; font-family: 'Segoe UI', sans-serif; touch-action: none; -webkit-user-select: none; user-select: none; }
         canvas { display: block; }
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; z-index: 100; pointer-events: auto; }
-        
         #main-menu { background: radial-gradient(circle, #1a1a1a 0%, #000 100%); }
         #main-menu h1 { font-size: 50px; color: #00ffcc; text-shadow: 0 0 20px #00ffcc; margin-bottom: 10px; }
         .controls-hint { color: #888888; font-size: 14px; margin-bottom: 30px; padding: 0 20px; }
-        
         .btn-start { padding: 12px 40px; font-size: 20px; background: transparent; border: 3px solid #00ffcc; color: #00ffcc; cursor: pointer; border-radius: 50px; font-weight: bold; transition: 0.3s; }
-
         #char-select { background: #000; display: none; }
         .char-container { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; justify-content: center; }
         .char-card { border: 2px solid #333; padding: 15px; width: 100px; cursor: pointer; border-radius: 15px; background: rgba(255,255,255,0.05); font-size: 12px; }
         .char-card.active { border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
-        
         #upgrade-screen, #pause-menu { background: rgba(0, 0, 0, 0.95); display: none; }
         .card-container { display: flex; flex-direction: column; gap: 10px; width: 80%; }
         .upgrade-card { background: #1a1a1a; border: 2px solid #ffcc00; padding: 15px; border-radius: 15px; }
-
         #game-over-screen { background: #000; display: none; }
         #game-over-screen h2 { font-size: 40px; color: #ff4444; }
-        
         #game-ui { position: absolute; top: 10px; left: 10px; color: white; font-size: 16px; pointer-events: none; display: none; }
         .bar-container { width: 150px; height: 12px; background: #222; border: 1px solid #444; margin: 3px 0 10px 0; position: relative; overflow: hidden; }
         #hp-ghost { position: absolute; top: 0; left: 0; height: 100%; background: #fff; width: 100%; transition: width 0.6s ease-out; z-index: 1; }
         #hp-bar { position: absolute; top: 0; left: 0; height: 100%; background: #ff4444; width: 100%; z-index: 2; }
         #overload-bar { width: 0%; height: 100%; background: #00ffcc; }
-
-        /* [新增加：手機搖桿樣式] */
-        #joystick-wrapper {
-            position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px;
-            background: rgba(255,255,255,0.05); border: 2px solid rgba(0,255,204,0.2);
-            border-radius: 50%; display: none; touch-action: none; z-index: 200;
-        }
-        #joystick-knob {
-            position: absolute; top: 35px; left: 35px; width: 50px; height: 50px;
-            background: #00ffcc; border-radius: 50%; opacity: 0.8;
-        }
-
+        #joystick-wrapper { position: absolute; bottom: 40px; left: 40px; width: 120px; height: 120px; background: rgba(255,255,255,0.05); border: 2px solid rgba(0,255,204,0.2); border-radius: 50%; display: none; touch-action: none; z-index: 200; }
+        #joystick-knob { position: absolute; top: 35px; left: 35px; width: 50px; height: 50px; background: #00ffcc; border-radius: 50%; opacity: 0.8; }
         #boss-ui { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: none; width: 60%; }
         #boss-bar-box { width: 100%; height: 10px; background: rgba(0,0,0,0.5); border: 1px solid #ff0055; }
         #boss-bar { width: 100%; height: 100%; background: #ff0055; }
-
         .shaking { animation: shake 0.15s infinite; }
-        @keyframes shake {
-            0% { transform: translate(1px, 1px); }
-            50% { transform: translate(-2px, -1px); }
-            100% { transform: translate(1px, 1px); }
-        }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-2px, -1px); } 100% { transform: translate(1px, 1px); } }
     </style>
 </head>
 <body>
 
     <div id="main-menu" class="overlay">
         <h1>NEON SURVIVOR</h1>
-        <p class="controls-hint">Joystick to Move | Tap Right to Shoot | Long Press Right for Ring</p>
+        <p class="controls-hint">Joystick: Move | Tap Right: Shoot | Long Press: Ring</p>
         <button class="btn-start" onclick="toCharSelect()">ENTER SYSTEM</button>
     </div>
 
@@ -114,7 +93,6 @@ let bullets=[], enemies=[], collectibles=[];
 const keys={};
 let damageFlash = 0;
 
-// [角色數值 - 包含你的坦克與Scout需求]
 const heroes = {
     knight: { speed: 5, maxHp: 100, chargeSpeed: 1.0, color: '#00ffcc', defense: 1, damageMult: 1 },
     scout: { speed: 7.5, maxHp: 50, chargeSpeed: 1.8, color: '#ffff00', defense: 1.2, damageMult: 1 },
@@ -129,17 +107,19 @@ const upgradePool = [
     { title: "Repair", desc: "Heal 50% HP", effect: () => player.hp = Math.min(player.hp + player.maxHp*0.5, player.maxHp) }
 ];
 
-// --- [手機控制模組] ---
 const joystick = document.getElementById('joystick-wrapper');
 const knob = document.getElementById('joystick-knob');
 let isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 function toCharSelect() { document.getElementById('main-menu').style.display = 'none'; document.getElementById('char-select').style.display = 'flex'; }
 function selectChar(type) { player.type = type; document.querySelectorAll('.char-card').forEach(c => c.classList.remove('active')); document.getElementById('card-' + type).classList.add('active'); document.getElementById('confirm-btn').disabled = false; }
+
 function startGame() { 
     document.getElementById('char-select').style.display = 'none'; 
     document.getElementById('game-ui').style.display = 'block'; 
     if(isMobile) joystick.style.display = 'block';
+    // 手機版自動全螢幕
+    if (document.documentElement.requestFullscreen) document.documentElement.requestFullscreen();
     gameStarted = true; resize(); resetGame(); 
 }
 
@@ -148,7 +128,7 @@ function resetGame() {
     player.x = canvas.width / 2; player.y = canvas.height / 2; 
     player.hp = d.maxHp; player.maxHp = d.maxHp; player.multiShot = 1; 
     score=0; energy=0; lastUpgradeThresh=0; lastBossThresh=0; 
-    bullets=[]; enemies=[]; collectibles=[]; boss=null; 
+    bullets=[]; enemies=[]; collectibles=[]; boss=null; isCharging=false; chargeTime=0;
     isPaused = false; isGameOver = false; updateUI(); 
 }
 
@@ -163,7 +143,7 @@ function updateUI() {
 function triggerDamageFeedback(amt) {
     player.hp -= amt;
     damageFlash = 10;
-    if(isMobile && window.navigator.vibrate) window.navigator.vibrate(50); // 手機震動
+    if(isMobile && window.navigator.vibrate) window.navigator.vibrate(50);
     const hpContainer = document.getElementById('hp-container');
     hpContainer.classList.add('shaking');
     setTimeout(() => hpContainer.classList.remove('shaking'), 200);
@@ -203,17 +183,29 @@ function releaseNeonRing() {
     for(let a=0; a<Math.PI*2; a+=0.4) bullets.push({x:player.x, y:player.y, vx:Math.cos(a)*8, vy:Math.sin(a)*8, type:'ring', damage: dmg}); 
 }
 
-// [手機觸控與搖桿事件]
+function spawnBoss() {
+    boss = { x: canvas.width/2, y: -100, size: 100, hp: 5000, maxHp: 5000, speed: 1 };
+    document.getElementById('boss-ui').style.display = 'block';
+}
+
+// [手機控制修復]
 if(isMobile) {
     window.addEventListener('touchstart', e => {
         if(!gameStarted || isPaused) return;
         const touch = e.touches[0];
-        if(touch.clientX > canvas.width / 2) { // 畫面右側射擊
+        if(touch.clientX > canvas.width / 2) { 
             fireBullet();
             isCharging = true;
+            chargeTime = 0;
         }
     });
-    window.addEventListener('touchend', e => { isCharging = false; if(chargeTime > 30/heroes[player.type].chargeSpeed) releaseNeonRing(); chargeTime=0; });
+    window.addEventListener('touchend', e => { 
+        if(isCharging) {
+            if(chargeTime > 30/heroes[player.type].chargeSpeed) releaseNeonRing();
+            isCharging = false; 
+            chargeTime = 0;
+        }
+    });
 
     joystick.addEventListener('touchmove', e => {
         e.preventDefault();
@@ -224,7 +216,6 @@ if(isMobile) {
         const dist = Math.min(Math.hypot(dx, dy), 50);
         const angle = Math.atan2(dy, dx);
         knob.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
-        
         keys['w'] = dy < -20; keys['s'] = dy > 20; keys['a'] = dx < -20; keys['d'] = dx > 20;
         player.angle = angle;
     });
@@ -234,11 +225,11 @@ if(isMobile) {
     });
 }
 
-// [電腦鍵盤支援]
+// [電腦鍵盤與滑鼠支援]
 window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; if(e.key === 'Escape' || e.key.toLowerCase() === 'p') togglePause(); });
 window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
 window.addEventListener('mousemove', e => { if(!isMobile) player.angle = Math.atan2(e.clientY - player.y, e.clientX - player.x); });
-window.addEventListener('mousedown', e => { if(!gameStarted || isPaused || isMobile) return; if(e.button===0) fireBullet(); if(e.button===2) isCharging=true; });
+window.addEventListener('mousedown', e => { if(!gameStarted || isPaused || isMobile) return; if(e.button===0) fireBullet(); if(e.button===2) { isCharging=true; chargeTime=0; } });
 window.addEventListener('mouseup', e => { if(e.button===2 && isCharging) { if(chargeTime > 30/heroes[player.type].chargeSpeed) releaseNeonRing(); isCharging=false; chargeTime=0; } });
 window.addEventListener('contextmenu', e => e.preventDefault());
 
@@ -260,7 +251,7 @@ function update() {
     player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
 
     if(isCharging) chargeTime += hero.chargeSpeed;
-    if(isOverloaded) { if(Date.now() % 5 === 0) fireBullet(); overloadTimer--; if(overloadTimer <= 0) isOverloaded = false; updateUI(); }
+    if(isOverloaded) { if(Math.random() > 0.8) fireBullet(); overloadTimer--; if(overloadTimer <= 0) isOverloaded = false; updateUI(); }
     
     if(boss) {
         let d = Math.hypot(player.x - boss.x, player.y - boss.y);
@@ -307,7 +298,6 @@ function update() {
 function draw() {
     ctx.fillStyle = '#050505'; ctx.fillRect(0,0,canvas.width,canvas.height);
     if(gameStarted) {
-        // 網格背景
         ctx.strokeStyle = "rgba(0, 255, 204, 0.1)"; ctx.lineWidth = 1;
         for(let x=0; x<canvas.width; x+=60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
         for(let y=0; y<canvas.height; y+=60) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
