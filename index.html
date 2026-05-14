@@ -4,7 +4,7 @@
     <link rel="icon" type="image/png" href="Neon-Survivor.png">
     <meta property="og:title" content="Neon Survivor.io">
     <meta property="og:description" content="挑戰你的反應極限，在霓虹世界中生存下去！">
-    
+    <meta property="og:image" content="https://s11331136.github.io/Neon-Survivor.io/Neon-Survivor.png">
     
     <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
     
@@ -34,23 +34,21 @@
         
         /* 升級與暫停選單 */
         #upgrade-screen, #pause-menu { background: rgba(0, 0, 0, 0.9); display: none; }
-        .card-container { display: flex; flex-direction: row; justify-content: center; align-items: stretch; gap: 25px; width: 90%; max-width: 1200px; }
-        .upgrade-card { flex: 1; background: linear-gradient(145deg, #1a1a1a, #0a0a0a); border: 2px solid #ffcc00; padding: 30px; border-radius: 15px; cursor: pointer; transition: 0.2s; }
-        .upgrade-card:hover { transform: scale(1.05); box-shadow: 0 0 25px #ffcc00; }
-        .upgrade-card h3 { color: #ffcc00; font-size: 24px; margin-bottom: 15px;}
-        .upgrade-card p { font-size: 16px; color: #eee;}
         
-        /* 遊戲結束畫面 */
+        /* 按鈕暫停選單霓虹風格保留 */
+        #pause-menu h2 { color: #00ffcc; font-size: 60px; letter-spacing: 5px; text-shadow: 0 0 20px #00ffcc; margin-bottom: 30px;}
+        .btn-go-try { padding: 12px 60px; font-size: 20px; background: transparent; border: 3px solid #00ffcc; color: #00ffcc; cursor: pointer; border-radius: 30px; font-weight: bold; transition: all 0.3s ease; margin: 10px; text-transform: uppercase;}
+        .btn-go-try:hover { background: #00ffcc; color: #000; box-shadow: 0 0 15px #00ffcc;}
+        .btn-go-exit { padding: 12px 60px; font-size: 20px; background: transparent; border: 3px solid #ff4444; color: #ff4444; cursor: pointer; border-radius: 30px; font-weight: bold; transition: all 0.3s ease; margin: 10px; text-transform: uppercase;}
+        .btn-go-exit:hover { background: #ff4444; color: #000; box-shadow: 0 0 15px #ff4444;}
+        
+        /* 遊戲結束畫面霓虹風格保留 */
         #game-over-screen { background: #000000; display: none; }
         #game-over-screen h2 { font-size: 60px; color: #ff4444; text-shadow: 0 0 15px #ff4444, 0 0 30px #ff4444; margin-bottom: 20px; }
         #game-over-screen p { font-size: 28px; color: white; margin-bottom: 40px; }
-        .btn-go-try { padding: 12px 60px; font-size: 20px; background: transparent; border: 3px solid #00ffcc; color: #00ffcc; cursor: pointer; border-radius: 30px; font-weight: bold; transition: all 0.3s ease; margin: 10px; }
-        .btn-go-try:hover { background: #00ffcc; color: #000; }
-        .btn-go-exit { padding: 12px 60px; font-size: 20px; background: transparent; border: 3px solid #ff4444; color: #ff4444; cursor: pointer; border-radius: 30px; font-weight: bold; transition: all 0.3s ease; margin: 10px; }
-        .btn-go-exit:hover { background: #ff4444; color: #000; }
         
         /* UI 介面 */
-        #game-ui { position: absolute; top: 20px; left: 20px; color: white; pointer-events: none; display: none; text-align: left; font-family: 'Segoe UI', sans-serif; z-index: 50;}
+        #game-ui { position: absolute; top: 20px; left: 20px; color: white; pointer-events: none; display: none; text-align: left; font-family: 'Segoe UI', sans-serif; z-index: 50; }
         .score-display { font-size: 42px; font-weight: 900; color: #00ffcc; text-shadow: 0 0 15px rgba(0, 255, 204, 0.5); line-height: 1; margin-bottom: 5px; }
         .high-score-display { font-size: 16px; color: #888; margin-bottom: 25px; }
         .ui-label { font-size: 14px; font-weight: bold; margin-bottom: 4px; letter-spacing: 1px; }
@@ -66,12 +64,24 @@
         #difficulty-ui { font-size: 14px; color: #888; margin-top: 25px; line-height: 1.6; }
         @keyframes shake { 0% { transform: translate(1px, 1px); } 20% { transform: translate(-1px, -2px); } 40% { transform: translate(-3px, 0px); } 60% { transform: translate(3px, 2px); } 80% { transform: translate(1px, -1px); } 100% { transform: translate(-1px, 2px); } }
         .shaking { animation: shake 0.15s infinite; border: 1px solid #ff0000 !important; }
-        #boss-ui { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: none; width: 50%; pointer-events: none; text-align: center; transition: all 0.3s ease; z-index: 50;}
+        #boss-ui { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); display: none; width: 50%; pointer-events: none; text-align: center; transition: all 0.3s ease; z-index: 50; }
         #boss-name { color: #ff0055; margin-bottom: 8px; font-weight: bold; font-size: 20px; letter-spacing: 3px; text-shadow: 0 0 10px #ff0055;}
         #boss-bar-box { width: 100%; height: 18px; background: rgba(0,0,0,0.7); border: 2px solid #ff0055; border-radius: 9px; overflow: hidden; box-shadow: 0 0 15px rgba(255, 0, 85, 0.3); }
         #boss-bar { width: 100%; height: 100%; background: linear-gradient(90deg, #ff0055, #ff4444); transition: width 0.1s; }
 
-        /* 手遊 UI 樣式改進 (防止干擾選單) */
+        /* --- 新增 UI 樣式與修正 --- */
+
+        /* 右上角暫停鍵 */
+        #pause-btn-tr {
+            position: absolute; top: 20px; right: 20px; display: none; z-index: 200;
+            cursor: pointer; pointer-events: auto; font-size: 20px; font-weight: bold;
+            color: #00ffcc; text-shadow: 0 0 10px #00ffcc; background: rgba(0,0,0,0.3);
+            border: 2px solid #00ffcc; border-radius: 50%; width: 45px; height: 45px;
+            align-items: center; justify-content: center; transition: all 0.2s;
+        }
+        #pause-btn-tr:hover { background: #00ffcc; color: #000; box-shadow: 0 0 15px #00ffcc; }
+
+        /* 移動端控制整體佈局 */
         #mobile-controls {
             position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
             display: none; pointer-events: none; z-index: 90;
@@ -79,7 +89,7 @@
         .joystick-container {
             position: absolute; bottom: 40px; left: 40px; width: 140px; height: 140px;
             background: rgba(255, 255, 255, 0.05); border-radius: 50%; border: 2px solid rgba(0, 255, 204, 0.2);
-            touch-action: none; pointer-events: auto;
+            touch-action: none; pointer-events: auto; z-index: 100;
         }
         #joystick-stick {
             position: absolute; top: 50%; left: 50%; width: 50px; height: 50px;
@@ -87,16 +97,65 @@
             box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
         }
         .mobile-btn-container {
-            position: absolute; bottom: 40px; right: 40px; display: flex; gap: 15px; pointer-events: auto; align-items: flex-end;
+            position: absolute; right: 30px; bottom: 30px; display: flex; gap: 15px; pointer-events: auto; align-items: flex-end; flex-direction: row; z-index: 100;
         }
+
+        /* 按鈕透明度調整與樣式 */
         .m-btn {
             border-radius: 50%; border: 2px solid #fff;
             color: white; font-weight: bold; display: flex; align-items: center; justify-content: center;
-            user-select: none; touch-action: none; font-size: 14px; background: rgba(0,0,0,0.4); cursor: pointer;
+            user-select: none; touch-action: none; font-size: 13px; background: rgba(0, 0, 0, 0.1); cursor: pointer; transition: all 0.2s;
+            border-color: rgba(255,255,255,0.2); box-shadow: none; font-weight: bold; overflow: hidden; position: relative;
         }
-        #btn-dash { border-color: #00ffcc; width: 65px; height: 65px; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
-        #btn-ring { border-color: #ffcc00; width: 65px; height: 65px; box-shadow: 0 0 10px rgba(255,204,0,0.3); }
-        #btn-boost { border-color: #ff0055; width: 85px; height: 85px; font-size: 16px; box-shadow: 0 0 15px rgba(255,0,85,0.4); }
+        .m-btn:active { background: rgba(255,255,255,0.2) !important; color: #fff !important; }
+
+        /* 個別按鈕霓虹低透明度設定 */
+        #btn-dash { border-color: rgba(0, 255, 204, 0.2); color: rgba(0, 255, 204, 0.5); width: 65px; height: 65px; }
+        #btn-ring { border-color: rgba(255, 204, 0, 0.2); color: rgba(255, 204, 0, 0.5); width: 65px; height: 65px; }
+        #btn-boost { border-color: rgba(255, 0, 85, 0.2); color: rgba(255, 0, 85, 0.5); width: 80px; height: 80px; font-size: 15px;}
+        #btn-blade { border-color: rgba(0, 204, 255, 0.2); color: rgba(0, 204, 255, 0.5); width: 75px; height: 75px; z-index: 110;}
+
+        /* BLADE 充能填滿效果 */
+        #btn-blade .charge-fill {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 0%;
+            background: rgba(0, 204, 255, 0.2); transition: height linear; pointer-events: none; z-index: -1;
+        }
+
+        /* BLADE 按下時亮起效果 */
+        #btn-blade:active { background: rgba(0, 204, 255, 0.1) !important; border-color: #00ccff !important; color: #00ccff !important; box-shadow: 0 0 15px #00ccff !important; }
+
+        /* 選卡畫面模擬圖片 3 風格 */
+        #upgrade-screen { flex-direction: column; justify-content: flex-start; padding-top: 6vh;}
+        #upgrade-screen h2 { font-size: 45px; color: #ffcc00; text-shadow: 0 0 20px #ffcc00, 0 0 40px #ffcc00; margin-bottom: 10px;}
+
+        /* 選卡卡片橫向排列 */
+        .card-container {
+            display: flex; flex-direction: row; justify-content: center; align-items: stretch; gap: 30px;
+            width: 85%; max-width: 1400px; margin-top: 30px;
+        }
+
+        /* 霓虹金色選卡卡片樣式 */
+        .upgrade-card {
+            flex: 0 0 calc(33% - 20px);
+            max-width: 350px;
+            aspect-ratio: 2 / 3;
+            background: rgba(10, 10, 10, 0.95); border: 5px solid #ffcc00; border-radius: 18px;
+            padding: 30px; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.3), inset 0 0 10px rgba(255, 204, 0, 0.2);
+            position: relative; overflow: visible;
+        }
+
+        /* 選卡卡片 hover 發光 */
+        .upgrade-card:hover { transform: scale(1.05) translateY(-10px); box-shadow: 0 0 35px #ffcc00, inset 0 0 15px rgba(255, 204, 0, 0.4); }
+
+        /* 卡片內 Emoji 大圖示 */
+        .upgrade-card .card-icon { font-size: 70px; margin-bottom: 20px;}
+
+        /* 卡片內霓虹金色標題 */
+        .upgrade-card h3 { color: #ffcc00; font-size: 28px; margin-bottom: 15px; text-shadow: 0 0 10px #ffcc00, 0 0 20px rgba(255, 204, 0, 0.5);}
+
+        /* 卡片內霓虹金色描述 */
+        .upgrade-card p { font-size: 16px; color: rgba(255, 204, 0, 0.85); line-height: 1.5;}
     </style>
 </head>
 <body>
@@ -105,7 +164,7 @@
         <h1>NEON SURVIVOR.IO</h1>
         <p class="controls-hint">
             WASD: Move | Shift: Dash | Left Click: Shoot <br>
-            Right Click (Hold): Neon Blade | E: Neon Ring
+            Right Click (Hold): Neon Blade | E Key: Neon Ring
         </p>
         <button class="btn-start" onclick="toCharSelect()">ENTER SYSTEM</button>
     </div>
@@ -136,14 +195,15 @@
     </div>
 
     <div id="upgrade-screen" class="overlay">
-        <h2 style="color: #ffcc00; font-size: 45px; margin-bottom: 40px; text-shadow: 0 0 20px #ffcc00;">LEVEL UP DETECTED</h2>
+        <h2>LEVEL UP DETECTED</h2>
+        <p style="font-size: 18px; color: #ffcc00; text-shadow: 0 0 10px #ffcc00; margin-bottom: 10px;">Select an Upgrade to Continue Deployment</p>
         <div class="card-container" id="card-options"></div>
     </div>
 
     <div id="game-over-screen" class="overlay">
         <h2>MISSION FAILED</h2>
         <p>Final Score: <span id="final-score-val" style="color: #00ffcc; font-weight: bold;">0</span></p>
-        <button class="btn-start" id="revive-btn" onclick="watchAdToRevive()" style="border-color: #ffcc00; color: #ffcc00; margin-bottom: 20px;">WATCH AD TO REVIVE (RESTORE 50% HP)</button>
+        <button class="btn-start" id="revive-btn" onclick="watchAdToRevive()" style="border-color: #ffcc00; color: #ffcc00; margin-bottom: 20px;">WATCH AD TO REVIVE(50% HP)</button>
         <br>
         <button class="btn-go-try" onclick="location.reload()">TRY AGAIN</button>
         <button class="btn-go-exit" onclick="backToMain()">EXIT TO MENU</button>
@@ -172,6 +232,7 @@
             System Intensity: <span id="intensity-val">100</span>% <br>
             Defeated Bosses: <span id="boss-count">0</span>
         </div>
+        <div id="pause-btn-tr" onclick="togglePause()">||</div>
     </div>
 
     <div id="boss-ui">
@@ -187,6 +248,10 @@
             <div class="m-btn" id="btn-ring">RING</div>
             <div class="m-btn" id="btn-dash">DASH</div>
             <div class="m-btn" id="btn-boost">BOOST</div>
+            <div class="m-btn" id="btn-blade">
+                <span>BLADE</span>
+                <div class="charge-fill" id="btn-blade-fill"></div>
+            </div>
         </div>
     </div>
 
@@ -239,6 +304,11 @@ let player = {
 };
 
 let isBoosting = false;
+
+// --- 新增 Emoji 對應表用在卡片上 ---
+const upgradeEmoji = {
+    "multi_shot": "⚔️", "atk_amp": "🔥", "speed_plus": "⚡", "charge_plus": "🔋", "repair": "🔧", "drone_unit": "🤖"
+};
 
 const bossDatabase = [
     { name: "NEON TITAN", hp: 400, size: 80, speed: 1.2, color: "#ff0055", type: "titan" },
@@ -369,9 +439,7 @@ function showUpgradeScreen() {
         let currentSum = 0;
         for(let j = 0; j < availableOptions.length; j++) {
             currentSum += availableOptions[j].rarity;
-            if(random <= currentSum) {
-                selectedCards.push(availableOptions[j]); availableOptions.splice(j, 1); break;
-            }
+            if(random <= currentSum) { selectedCards.push(availableOptions[j]); availableOptions.splice(j, 1); break; }
         }
     }
 
@@ -379,7 +447,9 @@ function showUpgradeScreen() {
         const div = document.createElement('div'); 
         div.className = 'upgrade-card';
         if(option.id === "drone_unit") div.style.borderColor = drone.color; 
-        div.innerHTML = `<h3>${option.title}</h3><p>${option.desc}</p>`;
+        
+        const emoji = upgradeEmoji[option.id] || "❓";
+        div.innerHTML = `<div class="card-icon">${emoji}</div><h3>${option.title}</h3><p>${option.desc}</p>`;
         div.onclick = () => { option.effect(); screen.style.display = "none"; isPaused = false; updateUI(); };
         container.appendChild(div);
     });
@@ -441,6 +511,8 @@ function drawGrid() {
     ctx.stroke();
 }
 
+// ==================== 事件監聽器 (全面換成 Pointer Events 支援滑鼠與觸控) ====================
+
 window.addEventListener('keydown', e => { 
     const key = e.key.toLowerCase(); keys[key] = true; 
     if(e.key === 'Escape' || key === 'p') togglePause(); 
@@ -448,16 +520,31 @@ window.addEventListener('keydown', e => {
     if(key === 'e' && ringCooldown <= 0 && gameStarted && !isPaused) { releaseNeonRing(); ringCooldown = MAX_RING_CD; }
 });
 window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+// 瞄準邏輯
 window.addEventListener('mousemove', e => {
-    if (!/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    if (!joystickActive) { // 搖桿沒在使用時，滑鼠才可瞄準
         player.angle = Math.atan2(e.clientY - player.y, e.clientX - player.x);
     }
 });
-window.addEventListener('mousedown', e => { if(!gameStarted || isPaused) return; if(e.button === 0) fireBullet(); if(e.button === 2) isCharging = true; });
-window.addEventListener('mouseup', e => { if(!gameStarted || isPaused) return; if(e.button === 2 && isCharging) { if(chargeTime > 30 / heroes[player.type].chargeSpeed) spawnBlade(); isCharging = false; chargeTime = 0; } });
+// 電腦玩家保留滑鼠左鍵開火與右鍵充能
+window.addEventListener('mousedown', e => { 
+    if(!gameStarted || isPaused) return; 
+    if(e.button === 0) fireBullet(); 
+    if(e.button === 2) { isCharging = true; chargeTime = 0; }
+});
+window.addEventListener('mouseup', e => { 
+    if(!gameStarted || isPaused) return; 
+    if(e.button === 2) { 
+        if(isCharging && chargeTime > 30 / heroes[player.type].chargeSpeed) spawnBlade(); 
+        isCharging = false; chargeTime = 0; 
+    } 
+});
 window.addEventListener('contextmenu', e => e.preventDefault());
 
-// ==================== 手遊搖桿監聽 (Pointer Events 支援觸控與滑鼠) ====================
+// ==================== 手遊控制監聽 ====================
+
+// --- 搖桿監聽 ---
 let joystickActive = false;
 let joystickStart = { x: 0, y: 0 };
 let joystickCurrent = { x: 0, y: 0 };
@@ -467,50 +554,67 @@ const joystick = document.getElementById('joystick');
 const stick = document.getElementById('joystick-stick');
 
 joystick.addEventListener('pointerdown', e => {
-    joystickActive = true;
-    joystickPointerId = e.pointerId;
-    joystick.setPointerCapture(e.pointerId);
-    const rect = joystick.getBoundingClientRect();
-    joystickStart = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+    joystickActive = true; joystickPointerId = e.pointerId; joystick.setPointerCapture(e.pointerId);
+    const rect = joystick.getBoundingClientRect(); joystickStart = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
 });
 
 window.addEventListener('pointermove', e => {
     if (!joystickActive || e.pointerId !== joystickPointerId) return;
-    const dx = e.clientX - joystickStart.x;
-    const dy = e.clientY - joystickStart.y;
-    const dist = Math.hypot(dx, dy);
-    const maxDist = 50;
-    const angle = Math.atan2(dy, dx);
+    const dx = e.clientX - joystickStart.x; const dy = e.clientY - joystickStart.y;
+    const dist = Math.hypot(dx, dy); const maxDist = 50; const angle = Math.atan2(dy, dx);
     const finalDist = Math.min(dist, maxDist);
-    
-    joystickCurrent = { 
-        x: Math.cos(angle) * (finalDist / maxDist), 
-        y: Math.sin(angle) * (finalDist / maxDist) 
-    };
+    joystickCurrent = { x: Math.cos(angle) * (finalDist / maxDist), y: Math.sin(angle) * (finalDist / maxDist) };
     stick.style.transform = `translate(calc(-50% + ${Math.cos(angle)*finalDist}px), calc(-50% + ${Math.sin(angle)*finalDist}px))`;
 });
 
-const releaseJoystick = (e) => {
-    if (e && e.pointerId !== joystickPointerId) return;
-    joystickActive = false;
-    joystickPointerId = null;
-    joystickCurrent = { x: 0, y: 0 };
-    stick.style.transform = `translate(-50%, -50%)`;
-};
+const releaseJoystick = (e) => { if (e && e.pointerId !== joystickPointerId) return; joystickActive = false; joystickPointerId = null; joystickCurrent = { x: 0, y: 0 }; stick.style.transform = `translate(-50%, -50%)`; };
 window.addEventListener('pointerup', releaseJoystick);
 window.addEventListener('pointercancel', releaseJoystick);
 
-// ==================== 手遊按鈕監聽 ====================
+// --- 按鈕監聽 (DASH, RING, BOOST, BLADE) ---
 const setupBtn = (id, onDown, onUp) => {
     const btn = document.getElementById(id);
     btn.addEventListener('pointerdown', e => { e.preventDefault(); btn.setPointerCapture(e.pointerId); if(onDown) onDown(); });
-    btn.addEventListener('pointerup', e => { e.preventDefault(); btn.releasePointerCapture(e.pointerId); if(onUp) onUp(); });
+    btn.addEventListener('pointerup', e => { e.preventDefault(); if(e.pointerId) btn.releasePointerCapture(e.pointerId); if(onUp) onUp(); });
     btn.addEventListener('pointercancel', e => { e.preventDefault(); if(onUp) onUp(); });
 };
 
 setupBtn('btn-dash', () => { if (dashCooldown <= 0 && gameStarted && !isPaused) { isDashing = true; dashTimer = 10; dashCooldown = MAX_DASH_CD; } });
 setupBtn('btn-ring', () => { if (ringCooldown <= 0 && gameStarted && !isPaused) { releaseNeonRing(); ringCooldown = MAX_RING_CD; } });
 setupBtn('btn-boost', () => { isBoosting = true; }, () => { isBoosting = false; });
+
+// --- BLADE 按鈕按住充能邏輯 ---
+let bladeChargeTimerId = null;
+setupBtn('btn-blade', 
+    () => { // down
+        if (gameStarted && !isPaused && !isGameOver && blades.length < MAX_BLADES) {
+            isCharging = true;
+            chargeTime = 0;
+            const hero = heroes[player.type];
+            const chargeTimeRequired = 30 / hero.chargeSpeed;
+            
+            const fill = document.getElementById('btn-blade-fill');
+            fill.style.transitionDuration = (chargeTimeRequired * 16.66) + 'ms'; 
+            fill.style.height = '100%'; 
+
+            bladeChargeTimerId = setTimeout(() => {
+                if (isCharging) fill.style.height = '100%';
+            }, chargeTimeRequired * 16.66); 
+        }
+    }, 
+    () => { // up
+        clearTimeout(bladeChargeTimerId); 
+        const fill = document.getElementById('btn-blade-fill');
+        
+        if (isCharging && chargeTime > 30 / heroes[player.type].chargeSpeed) {
+             spawnBlade();
+        }
+        isCharging = false;
+        chargeTime = 0;
+        fill.style.transitionDuration = '0s'; 
+        fill.style.height = '0%';
+    }
+);
 
 // =======================================================
 
@@ -680,34 +784,20 @@ function updateBossAI() {
 }
 
 function update() {
-    // --- 判斷是否顯示虛擬按鍵 ---
+    // --- 介面顯示邏輯 (確保右上暫停鍵顯示) ---
     const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
     const mobileUI = document.getElementById('mobile-controls');
-    let isMobileUIVisible = false;
-    
-    if (isTouch && gameStarted && !isPaused && !isGameOver && document.getElementById('upgrade-screen').style.display !== 'flex') {
-        mobileUI.style.display = 'block';
-        isMobileUIVisible = true;
+    const pauseBtnTR = document.getElementById('pause-btn-tr');
+
+    if (gameStarted && !isPaused && !isGameOver && document.getElementById('upgrade-screen').style.display !== 'flex') {
+        mobileUI.style.display = isTouch ? 'block' : 'none';
+        pauseBtnTR.style.display = 'flex';
     } else {
         mobileUI.style.display = 'none';
+        pauseBtnTR.style.display = 'none';
     }
 
     if(!gameStarted || isPaused || isGameOver) return; 
-
-    // --- 手遊自動瞄準與射擊 ---
-    if (isMobileUIVisible) {
-        let target = null;
-        let minDist = Infinity;
-        enemies.forEach(e => {
-            let d = Math.hypot(e.x - player.x, e.y - player.y);
-            if (d < minDist) { minDist = d; target = e; }
-        });
-        if (boss) target = boss;
-        if (target) player.angle = Math.atan2(target.y - player.y, target.x - player.x);
-
-        let fireRate = isBoosting ? 5 : 15;
-        if (gameTick % fireRate === 0) fireBullet();
-    }
 
     const hero = heroes[player.type]; gameTick++;
     if(damageFlash > 0) damageFlash--; 
@@ -733,7 +823,34 @@ function update() {
 
     player.x = Math.max(20, Math.min(canvas.width - 20, player.x)); player.y = Math.max(20, Math.min(canvas.height - 20, player.y));
     
-    if(isCharging) chargeTime += hero.chargeSpeed;
+    if(isCharging) {
+        chargeTime += hero.chargeSpeed;
+        if (isTouch || joystickActive) {
+            let target = null;
+            let minDist = Infinity;
+            enemies.forEach(e => {
+                let d = Math.hypot(e.x - player.x, e.y - player.y);
+                if (d < minDist) { minDist = d; target = e; }
+            });
+            if (boss) target = boss;
+            if (target) player.angle = Math.atan2(target.y - player.y, target.x - player.x);
+        }
+    }
+
+    if (isTouch) {
+        let target = null;
+        let minDist = Infinity;
+        enemies.forEach(e => {
+            let d = Math.hypot(e.x - player.x, e.y - player.y);
+            if (d < minDist) { minDist = d; target = e; }
+        });
+        if (boss) target = boss;
+        if (target && !joystickActive && !isCharging) player.angle = Math.atan2(target.y - player.y, target.x - player.x);
+
+        let fireRate = isBoosting ? 5 : 15;
+        if (gameTick % fireRate === 0) fireBullet();
+    }
+
     if(isOverloaded) { if(gameTick % 5 === 0) fireBullet(); overloadTimer--; if(overloadTimer <= 0) isOverloaded = false; updateUI(); } 
     
     handleEnemySpawning(); updateBossAI();
