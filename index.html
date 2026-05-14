@@ -35,12 +35,13 @@
         /* 升級與暫停選單 */
         #upgrade-screen, #pause-menu { background: rgba(0, 0, 0, 0.9); display: none; }
         
-        /* 按鈕暫停選單霓虹風格保留 */
-        #pause-menu h2 { color: #00ffcc; font-size: 60px; letter-spacing: 5px; text-shadow: 0 0 20px #00ffcc; margin-bottom: 30px;}
-        .btn-go-try { padding: 12px 60px; font-size: 20px; background: transparent; border: 3px solid #00ffcc; color: #00ffcc; cursor: pointer; border-radius: 30px; font-weight: bold; transition: all 0.3s ease; margin: 10px; text-transform: uppercase;}
-        .btn-go-try:hover { background: #00ffcc; color: #000; box-shadow: 0 0 15px #00ffcc;}
-        .btn-go-exit { padding: 12px 60px; font-size: 20px; background: transparent; border: 3px solid #ff4444; color: #ff4444; cursor: pointer; border-radius: 30px; font-weight: bold; transition: all 0.3s ease; margin: 10px; text-transform: uppercase;}
-        .btn-go-exit:hover { background: #ff4444; color: #000; box-shadow: 0 0 15px #ff4444;}
+        /* 右上角暫停按鈕 (獨立出來，不放在 game-ui 裡) */
+        #top-right-pause {
+            position: absolute; top: max(20px, env(safe-area-inset-top)); right: max(20px, env(safe-area-inset-right));
+            z-index: 200; display: none; width: 50px; height: 50px; border: 2px solid #00ffcc; border-radius: 50%;
+            background: rgba(0,0,0,0.4); color: #00ffcc; font-size: 20px; font-weight: bold;
+            align-items: center; justify-content: center; cursor: pointer; pointer-events: auto;
+        }
         
         /* 遊戲結束畫面霓虹風格保留 */
         #game-over-screen { background: #000000; display: none; }
